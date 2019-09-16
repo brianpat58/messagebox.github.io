@@ -64,20 +64,19 @@
 
 <script>
 // import json from "../assets/data.json"
-import axios from "axios";
-import { mapGetters, mapActions } from "vuex";
+import { mapGetters, mapActions, mapState } from "vuex";
 
 var filters = {
   all: function(messages) {
-    return messages;
+    return messages.messages;
   },
   projector: function(messages) {
-    return messages.filter(function(message) {
+    return messages.messages.filter(function(message) {
       return message.msg_type === "Projector";
     });
   },
   lcd: function(messages) {
-    return messages.filter(function(message) {
+    return messages.messages.filter(function(message) {
       return message.msg_type === "LCD";
     });
   }
@@ -87,27 +86,29 @@ export default {
   name: "App",
   data() {
     return {
-      messages: [],
+      // messages: [],
       visibility: "all"
     };
   },
   mounted() {
-    axios
-      .get(
-        "https://benqyannick.github.io/F2E_candidate_code_challenge-master/data.json"
-      )
-      .then(response => {
-        // this.messages = response.data.messages;
-        this.initMessages(response.data.messages);
-      });
+    this.$store.dispatch('loadMessages')
+    // axios
+    //   .get(
+    //     "https://benqyannick.github.io/F2E_candidate_code_challenge-master/data.json"
+    //   )
+    //   .then(response => {
+    //     this.messages = response.data.messages;
+    //     this.initMessages(response.data.messages);
+    //   });
   },
   computed: {
-    ...mapGetters(["vuexMessages"]),
+    // ...mapGetters(["vuexMessages"]),
+    ...mapState(['messages']),
     filteredMessages: function() {
       return filters[this.visibility](this.messages);
     },
     showButtons: function() {
-      const index = this.messages.findIndex(item => item.completed);
+      const index = this.messages.messages.findIndex(item => item.completed);
       if (index !== -1) {
         return true;
       }
@@ -117,16 +118,16 @@ export default {
   methods: {
     ...mapActions(["initMessages", "checkItem"]),
     openTab: function() {
-      console.log(this.messages);
+      // console.log(this.messages);
       window.open("https://www.benq.com/zh-tw/index.html", "_blank");
     },
     removeCompleted: function() {
-      const left = this.messages.filter(item => item.completed === false);
+      const left = this.messages.messages.filter(item => item.completed === false);
       // console.log(left);
-      return (this.messages = left);
+      return (this.messages.messages = left);
     },
     cancelButton: function() {
-      this.messages.forEach(item => {
+      this.messages.messages.forEach(item => {
         if (item.completed) {
           item.completed = false;
         }
